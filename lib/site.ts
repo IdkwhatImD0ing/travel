@@ -7,11 +7,11 @@ import {
   DEFAULT_CAR,
   DEFAULT_GEAR,
 } from "@/lib/choices";
-import { quote } from "@/lib/quote";
-import { stayTotalFor } from "@/lib/cost";
-import type { Plan } from "@/lib/types";
+import { quote, tripQuote } from "@/lib/quote";
+import { cheapestStay, openingStay } from "@/lib/cost";
+import type { SkiTrip, Stay, Trip } from "@/lib/types";
 
-export const SITE_NAME = "Night laps";
+export const SITE_NAME = "Trips";
 
 /**
  * Where link previews point. This used to be a made-up
@@ -38,32 +38,46 @@ export const OG_BASE = {
 } satisfies NonNullable<Metadata["openGraph"]>;
 
 /**
- * What one person pays on a plan with every choice at its default: the
- * cheapest pass covering the trip, the house the plan names, and Bill's gear
+ * What one person pays on a ski trip with every choice at its default: the
+ * cheapest pass covering the trip, the house the trip names, and Bill's gear
  * and car defaults. The share card leads with it. null when a price is
  * missing — a card never shows a number the page wouldn't.
  */
-export function planQuote(plan: Plan) {
-  const resort = plan.resort ? getResort(plan.resort) : undefined;
+export function planQuote(trip: SkiTrip) {
+  const resort = trip.ski.resort ? getResort(trip.ski.resort) : undefined;
   if (!resort) return null;
   const lift = cheapestAccess(
     resort.slug,
-    plan.age,
-    liftChoices(LOCATIONS, plan.skiDates)
+    trip.ski.age,
+    liftChoices(LOCATIONS, trip.ski.skiDates)
   );
   const stays = getLocation(resort.locationSlug)?.stays ?? [];
-  // The plan's own house when it names one; otherwise the cheapest house on
+  // The trip's own house when it names one; otherwise the cheapest house on
   // its shortlist that is quoted at our headcount — and the card says "from".
-  const named = stays.find((s) => s.id === plan.stay);
-  const cheapest = (plan.shortlist ?? [])
-    .map((id) => stays.find((s) => s.id === id))
-    .filter((s): s is NonNullable<typeof s> => !!s && !!stayTotalFor(s, plan.people))
-    .sort(
-      (a, b) =>
-        stayTotalFor(a, plan.people)!.totalUsd - stayTotalFor(b, plan.people)!.totalUsd
-    )[0];
+  const named = stays.find((s) => s.id === trip.stay);
+  const cheapest = cheapestStay(
+    (trip.shortlist ?? [])
+      .map((id) => stays.find((s) => s.id === id))
+      .filter((s): s is Stay => !!s),
+    trip.people
+  );
   const stay = named ?? cheapest;
   if (!lift || !stay) return null;
-  const q = quote(lift, stay, DEFAULT_GEAR, DEFAULT_CAR, plan.people, plan.skiDays);
+  const q = quote(lift, stay, DEFAULT_GEAR, DEFAULT_CAR, trip.people, trip.ski.skiDays);
   return q && { ...q, lift, resort, fromCheapest: !named };
+}
+
+/**
+ * What one person pays for any trip at its defaults, for the trip cards and
+ * the share images. `from` when the house was picked as the cheapest rather
+ * than decided. null when there is no honest total yet.
+ */
+export function tripPrice(trip: Trip): { perPerson: number; from: boolean } | null {
+  if (trip.kind === "ski") {
+    const q = planQuote(trip);
+    return q && { perPerson: q.perPerson, from: q.fromCheapest };
+  }
+  const { stay, named } = openingStay(trip);
+  const q = tripQuote(stay, trip.costs, trip.people);
+  return q && { perPerson: q.perPerson, from: !!stay && !named && trip.stays.length > 1 };
 }

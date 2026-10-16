@@ -19,24 +19,22 @@ import { money, stayTotalFor } from "@/lib/cost";
 import { quote } from "@/lib/quote";
 import {
   SCENARIO,
-  listingUrl,
   tripDatesLabel,
-  type Plan,
+  type SkiTrip,
   type Stay,
   type StayTier,
 } from "@/lib/types";
 import { Marker } from "@/components/ui";
 import { GearChips } from "@/components/gear-chips";
+import { StayChip } from "@/components/stay-chip";
 import { Receipt, NoReceipt, MobileTotal } from "@/components/receipt";
 import {
   CHIP,
   CHIP_PROOF,
   CHIPS,
-  CHIP_META,
   CHIP_NAME,
   CHIP_NOTE,
   CHIP_RATE,
-  CHIP_SUB,
   CHIP_RATE_OFF,
   CHIP_UNIT,
   LAYOUT,
@@ -65,11 +63,12 @@ const TIER_LABEL = { budget: "budget", normal: "the pick", expensive: "splurge" 
  * from the board looks like it doesn't exist; a mountain on the board saying
  * "no price yet" is a job.
  */
-export function Scenario({ plan = SCENARIO }: { plan?: Plan }) {
-  const { people, skiDays, age } = plan;
+export function Scenario({ plan = SCENARIO }: { plan?: SkiTrip }) {
+  const { people } = plan;
+  const { skiDays, age } = plan.ski;
   const choices = useMemo(
-    () => liftChoices(LOCATIONS, plan.skiDates),
-    [plan.skiDates]
+    () => liftChoices(LOCATIONS, plan.ski.skiDates),
+    [plan.ski.skiDates]
   );
   // Cheapest four-day access at 21, per mountain, worked out once, then sorted
   // down the trail markers: green under the $60 bar, blue at it, diamond over,
@@ -112,7 +111,7 @@ export function Scenario({ plan = SCENARIO }: { plan?: Plan }) {
   // our headcount — a friend opening the link would meet a blank total, which
   // is the one thing this page exists not to do.
   const [resortSlug, setResortSlug] = useState(() => {
-    if (plan.resort) return plan.resort;
+    if (plan.ski.resort) return plan.ski.resort;
     const complete = board.filter(
       (r) =>
         r.lift &&
@@ -128,8 +127,8 @@ export function Scenario({ plan = SCENARIO }: { plan?: Plan }) {
       )?.resort.slug ?? RESORTS[0].slug
     );
   });
-  const chosen = plan.resort
-    ? board.find((r) => r.resort.slug === plan.resort)
+  const chosen = plan.ski.resort
+    ? board.find((r) => r.resort.slug === plan.ski.resort)
     : undefined;
   const others = chosen ? board.filter((r) => r !== chosen) : board;
 
@@ -330,93 +329,24 @@ export function Scenario({ plan = SCENARIO }: { plan?: Plan }) {
             </span>
           </h2>
           <div className={CHIPS} role="group" aria-labelledby="s-stay">
-            {stays.map(({ stay: s, tier }) => {
-              const t = stayTotalFor(s, people);
-              const fits = people <= (s.sleepsMax ?? s.sleeps);
-              return (
-                // The listing link can't live inside the button — an <a> nested
-                // in a <button> is invalid, and the click would be swallowed by
-                // the selection handler.
-                <div key={s.id} className="relative grid">
-                  <button
-                    type="button"
-                    className={`${CHIP} h-full`}
-                    aria-pressed={s.id === stayId}
-                    data-off={!t || !fits || undefined}
-                    onClick={() => setStayId(s.id)}
-                  >
-                    <span className={`${CHIP_NAME} pr-16`}>{s.name}</span>
-                    <span className={CHIP_META}>
-                      {/* On a trip page the house Bill is planning on says so;
-                          "the pick" would otherwise land on whichever house
-                          happens to be priced in the middle. */}
-                      {s.id === plan.stay ? (
-                        <span className="text-sodium">the plan · </span>
-                      ) : (
-                        tier && (
-                          <span className="text-sodium">
-                            {tier === "cheapest" ? "cheapest" : TIER_LABEL[tier]} ·{" "}
-                          </span>
-                        )
-                      )}
-                      sleeps {s.sleeps}
-                      {s.sleepsMax ? `–${s.sleepsMax}` : ""} · {s.nights} nights
-                    </span>
-                    {s.sleepNote && (
-                      <span className="text-[12.5px] leading-snug text-snow/75">
-                        {s.sleepNote}
-                      </span>
-                    )}
-                    {t ? (
-                      <>
-                      {/* The nightly per-head rate leads: it is the figure that compares
-                          across houses with different night counts, and the one people
-                          actually carry in their head. The trip total per person stays
-                          underneath, because that is what you hand over. */}
-                      <span className={CHIP_RATE}>
-                        {money(t.totalUsd / people / s.nights, true)}
-                        <span className={CHIP_UNIT}>/person/night</span>
-                        {t.estimated && (
-                          <span className={`${PILL} border-glacier/45 text-glacier`}>
-                            est
-                          </span>
-                        )}
-                      </span>
-                      <span className={CHIP_SUB}>
-                        {money(t.totalUsd / people, true)} /person for {s.nights} nights
-                      </span>
-                      </>
-                    ) : (
-                      <span className={CHIP_RATE_OFF}>
-                        {s.quotes.length
-                          ? `quoted at ${s.quotes
-                              .map((x) => x.guests)
-                              .join(", ")}, not ${people}`
-                          : "no quote"}
-                      </span>
-                    )}
-                  </button>
-                  {s.url ? (
-                    <a
-                      href={listingUrl(s.url, plan)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Open ${s.name} on Airbnb in a new tab`}
-                      className={`${CHIP_PROOF} right-[13px] top-[11px]`}
-                    >
-                      listing&nbsp;↗
-                    </a>
-                  ) : (
-                    <span
-                      className="pointer-events-none absolute right-[13px] top-[11px] z-10 rounded-[2px] border border-dashed border-ridge px-1.5 py-0.5 font-data text-[9.5px] uppercase tracking-[0.1em] text-muted/70"
-                      title="Bill hasn't sent the link for this one yet"
-                    >
-                      no link
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+            {stays.map(({ stay: s, tier }) => (
+              <StayChip
+                key={s.id}
+                stay={s}
+                people={people}
+                picked={s.id === stayId}
+                onPick={() => setStayId(s.id)}
+                // On a trip page the house Bill is planning on says so; "the
+                // pick" would otherwise land on whichever house happens to be
+                // priced in the middle.
+                mark={
+                  s.id === plan.stay
+                    ? "the plan"
+                    : tier && (tier === "cheapest" ? "cheapest" : TIER_LABEL[tier])
+                }
+                trip={plan}
+              />
+            ))}
           </div>
         </section>
 

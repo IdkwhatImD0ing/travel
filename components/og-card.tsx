@@ -1,5 +1,7 @@
+import { SITE_NAME } from "@/lib/site";
+
 /**
- * The share card both opengraph-image routes draw: night ground, a sodium
+ * The share card every opengraph-image route draws: night ground, a sodium
  * rule, a headline, and the number. ImageResponse supports only a flexbox
  * subset of CSS and inline styles, so this deliberately shares no classes
  * with the page. Colors are the tokens from globals.css.
@@ -87,7 +89,7 @@ export function OgCard({
         ) : (
           <div style={{ fontSize: 30, color: MUTED }}>{figureLabel}</div>
         )}
-        <div style={{ fontSize: 30, fontWeight: 700 }}>Night laps</div>
+        <div style={{ fontSize: 30, fontWeight: 700 }}>{SITE_NAME}</div>
       </div>
     </div>
   );

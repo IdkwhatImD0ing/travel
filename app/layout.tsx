@@ -4,7 +4,6 @@ import "./globals.css";
 import { HeadcountProvider } from "@/components/headcount";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { SCENARIO, tripDatesLabel } from "@/lib/types";
 import { OG_BASE, SITE_NAME, SITE_URL } from "@/lib/site";
 
 /* Archivo carries a width axis — set wide for the signage voice. */
@@ -27,17 +26,15 @@ const chivoMono = Chivo_Mono({
 });
 
 /**
- * Written against what the page actually does now, with numbers from SCENARIO
- * so the description cannot drift from the page. This is the home page's
- * card; the explorer and each trip page set their own, and the title template
+ * The home page's card: every trip, whatever kind. The Tahoe board at /ski,
+ * the explorer and each trip page set their own, and the title template
  * keeps the site name on all of them. The share image is
  * app/opengraph-image.tsx.
  */
-const HOME_TITLE = `${SITE_NAME} — ${SCENARIO.people} people, ${SCENARIO.skiDays} ski days in Tahoe`;
+const HOME_TITLE = `${SITE_NAME} — every trip we're planning`;
 const HOME_DESCRIPTION =
-  `San Jose to Tahoe over New Year, ${tripDatesLabel()}. Every mountain priced for ` +
-  `${SCENARIO.skiDays} full days at ${SCENARIO.age}, the houses near each, and one number at ` +
-  `the end: what you pay, not what the group pays.`;
+  "Every trip Bill is planning from San Jose, and what one person pays for " +
+  "each. Every price links to the page it came from.";
 
 export const metadata: Metadata = {
   metadataBase: SITE_URL,
@@ -48,8 +45,7 @@ export const metadata: Metadata = {
   openGraph: {
     ...OG_BASE,
     title: HOME_TITLE,
-    description:
-      "Every Tahoe mountain priced for New Year, one number at the end: your share. Every price links to the page it came from.",
+    description: HOME_DESCRIPTION,
     url: "/",
   },
   twitter: { card: "summary_large_image" },

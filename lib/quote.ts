@@ -1,6 +1,6 @@
 import { stayTotalFor } from "@/lib/cost";
 import { CAR, GEAR, gearCost, type CarKey, type GearKey, type LiftChoice } from "@/lib/choices";
-import { SKI_DAYS, type Stay } from "@/lib/types";
+import { SKI_DAYS, type Cost, type Stay } from "@/lib/types";
 
 export type QuoteLine = {
   label: string;
@@ -125,5 +125,74 @@ export function quote(
     squeeze: headcount > stay.sleeps,
     liftCovers: lift.covers,
     liftShortfall: Math.max(0, skiDays - lift.covers),
+  };
+}
+
+/** What a non-ski trip comes to: the lines and the shares, nothing ski. */
+export type TripQuote = {
+  lines: QuoteLine[];
+  total: number;
+  perPerson: number;
+  /** null when the trip has no house to count nights from. */
+  perPersonPerNight: number | null;
+  nights: number | null;
+  stay?: Stay;
+  estimated: boolean;
+  squeeze: boolean;
+};
+
+/**
+ * Prices any trip that isn't a ski trip: the house you picked, if the trip
+ * has houses, plus every other cost. The same rule as the ski quote: one
+ * missing number and there is no total, because a partial sum reads as the
+ * price of the trip. null too when nobody has said how many of us there are,
+ * since every share divides by it.
+ */
+export function tripQuote(
+  stay: Stay | undefined,
+  costs: Cost[],
+  headcount: number | undefined
+): TripQuote | null {
+  if (!headcount) return null;
+  if (!stay && !costs.length) return null;
+  if (costs.some((c) => c.usd === null)) return null;
+
+  const lodging = stay ? stayTotalFor(stay, headcount) : null;
+  if (stay && !lodging) return null;
+
+  const lines: QuoteLine[] = [
+    ...(stay && lodging
+      ? [
+          {
+            label: "Lodging",
+            total: lodging.totalUsd,
+            perPerson: lodging.totalUsd / headcount,
+            detail: `${stay.name} · ${stay.nights} nights`,
+          },
+        ]
+      : []),
+    ...costs.map((c) => {
+      const total = c.per === "person" ? c.usd! * headcount : c.usd!;
+      return {
+        label: c.label,
+        total,
+        perPerson: total / headcount,
+        detail: c.detail ?? (c.per === "group" ? "split across everyone" : "each"),
+      };
+    }),
+  ];
+
+  const total = lines.reduce((s, l) => s + l.total, 0);
+  const nights = stay?.nights ?? null;
+
+  return {
+    lines,
+    total,
+    perPerson: total / headcount,
+    perPersonPerNight: nights ? total / headcount / nights : null,
+    nights,
+    stay,
+    estimated: lodging?.estimated ?? false,
+    squeeze: !!stay && headcount > stay.sleeps,
   };
 }

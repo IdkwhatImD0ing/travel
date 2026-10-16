@@ -53,7 +53,7 @@ export type LiftChoice = {
 export function usableDates(
   option: LiftOption,
   liftsOffDates = false,
-  dates: readonly string[] = SCENARIO.skiDates
+  dates: readonly string[] = SCENARIO.ski.skiDates
 ): string[] {
   return dates.filter((d) => {
     // Noon UTC so the weekday can't slide across midnight in any timezone.
@@ -89,7 +89,7 @@ function tripCost(option: LiftOption, sticker: number, days: number): number {
  */
 export function liftChoices(
   locations: SkiLocation[] = LOCATIONS,
-  skiDates: readonly string[] = SCENARIO.skiDates
+  skiDates: readonly string[] = SCENARIO.ski.skiDates
 ): LiftChoice[] {
   const out: LiftChoice[] = [];
   for (const loc of locations) {

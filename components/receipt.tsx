@@ -1,15 +1,26 @@
 import { money } from "@/lib/cost";
-import type { Quote } from "@/lib/quote";
+import type { Quote, QuoteLine, TripQuote } from "@/lib/quote";
 
-/* The payoff, and the reason anyone opened the link. Shared by the scenario
-   page and the explorer so the number is presented identically on both. */
+/* The payoff, and the reason anyone opened the link. The shell is shared by
+   every trip page and the explorer, so the number is presented identically
+   everywhere; the ski and the other-trip receipts only add their own notes. */
 
-export function Receipt({
+function ReceiptShell({
   q,
   headcount,
+  note,
+  children,
 }: {
-  q: Quote;
+  q: {
+    lines: QuoteLine[];
+    total: number;
+    perPerson: number;
+    perPersonPerNight: number | null;
+  };
   headcount: number;
+  /** What the total leaves out, said under the lines. */
+  note?: string;
+  children?: React.ReactNode;
 }) {
   return (
     <section
@@ -43,9 +54,7 @@ export function Receipt({
           ))}
         </tbody>
       </table>
-      <p className="mt-2 text-[11.5px] text-muted">
-        Food and gas aren&rsquo;t included — everyone covers their own.
-      </p>
+      {note && <p className="mt-2 text-[11.5px] text-muted">{note}</p>}
 
       <div className="mt-[22px] flex flex-wrap items-end gap-x-10 gap-y-[18px] border-t border-ridge pt-[22px]">
         {/* Your share, not the group's. It gets the size. */}
@@ -55,14 +64,16 @@ export function Receipt({
           </span>
           <span className="text-[11.5px] text-muted">per person</span>
         </p>
-        <p className="m-0 grid gap-1.5">
-          <span className="font-data tabular-nums text-[1.7rem] font-bold leading-none tracking-[-0.04em] text-glacier">
-            {money(q.perPersonPerNight)}
-          </span>
-          {/* Divided by nights, not ski days — the page says "4 full days" a
-              few lines up, so "per day" would read as the wrong denominator. */}
-          <span className="text-[11.5px] text-muted">per person, per night</span>
-        </p>
+        {q.perPersonPerNight !== null && (
+          <p className="m-0 grid gap-1.5">
+            <span className="font-data tabular-nums text-[1.7rem] font-bold leading-none tracking-[-0.04em] text-glacier">
+              {money(q.perPersonPerNight)}
+            </span>
+            {/* Divided by nights, not ski days — the page says "4 full days" a
+                few lines up, so "per day" would read as the wrong denominator. */}
+            <span className="text-[11.5px] text-muted">per person, per night</span>
+          </p>
+        )}
         <p className="m-0 grid gap-1.5">
           <span className="font-data tabular-nums text-[1.35rem] font-bold leading-none tracking-[-0.04em] text-snow/74">
             {money(q.total)}
@@ -73,6 +84,19 @@ export function Receipt({
         </p>
       </div>
 
+      {children}
+    </section>
+  );
+}
+
+/** A ski trip's receipt: the shell, plus the pass's hole and the carloads. */
+export function Receipt({ q, headcount }: { q: Quote; headcount: number }) {
+  return (
+    <ReceiptShell
+      q={q}
+      headcount={headcount}
+      note="Food and gas aren’t included — everyone covers their own."
+    >
       {/* A pass that doesn't reach four days leaves a hole in the trip, and the
           total above is not the price of the trip Bill asked for. Say so where
           the number is, not in a caption underneath it. */}
@@ -95,7 +119,25 @@ export function Receipt({
         {q.squeeze && ` · ${headcount - q.stay.sleeps} on air mattresses`}
         {q.estimated && " · lodging interpolated, not quoted"}
       </p>
-    </section>
+    </ReceiptShell>
+  );
+}
+
+/** Any other trip's receipt: the shell, plus the nights and the squeeze. */
+export function TripReceipt({ q, headcount }: { q: TripQuote; headcount: number }) {
+  const facts = [
+    q.nights && `${q.nights} nights`,
+    q.squeeze && q.stay && `${headcount - q.stay.sleeps} on air mattresses`,
+    q.estimated && "lodging interpolated, not quoted",
+  ].filter(Boolean);
+  return (
+    <ReceiptShell q={q} headcount={headcount}>
+      {facts.length > 0 && (
+        <p className="mt-5 font-data text-[11px] uppercase leading-relaxed tracking-[0.06em] text-muted">
+          {facts.join(" · ")}
+        </p>
+      )}
+    </ReceiptShell>
   );
 }
 
@@ -120,7 +162,13 @@ export function NoReceipt({ children }: { children: React.ReactNode }) {
  * the bottom instead. Duplicates the rail, so it is hidden from screen readers
  * rather than announced twice.
  */
-export function MobileTotal({ q }: { q: Quote }) {
+export function MobileTotal({
+  q,
+  caption = "per person, before food and gas",
+}: {
+  q: { perPerson: number };
+  caption?: string;
+}) {
   return (
     <div
       aria-hidden
@@ -129,7 +177,7 @@ export function MobileTotal({ q }: { q: Quote }) {
       <span className="font-data tabular-nums text-[1.35rem] font-bold leading-none tracking-[-0.03em] text-glacier">
         {money(q.perPerson)}
       </span>
-      <span className="text-[11px] text-muted">per person, before food and gas</span>
+      <span className="text-[11px] text-muted">{caption}</span>
     </div>
   );
 }

@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { TRIP_HEADS, tripGroup } from "@/data/trips";
-import { getResort } from "@/data/resorts";
+
+/** Upcoming trips only: ideas live on the home page, not in the header. */
+const UPCOMING = TRIP_HEADS.filter((t) => t.status === "upcoming");
 
 /**
  * One link per trip we're taking, in the header so every page reaches them.
@@ -12,13 +14,13 @@ import { getResort } from "@/data/resorts";
  */
 export function TripNav() {
   const path = usePathname();
-  if (!TRIP_HEADS.length) return null;
+  if (!UPCOMING.length) return null;
   return (
-    <nav aria-label="Trips we're taking" className="mr-auto">
-      <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
+    <nav aria-label="Trips we're taking">
+      <ul className="m-0 flex list-none flex-wrap justify-end gap-1.5 p-0">
         {/* One link per trip; its shorter or longer versions are a switch
             on the trip page, not more header buttons. */}
-        {TRIP_HEADS.map((t) => {
+        {UPCOMING.map((t) => {
           const href = `/trips/${t.slug}`;
           const here = tripGroup(t).some((v) => path === `/trips/${v.slug}`);
           return (
@@ -29,7 +31,7 @@ export function TripNav() {
                 title={t.title}
                 className="inline-block rounded-[3px] border border-ridge px-2.5 py-1 font-data text-[11px] uppercase tracking-[0.1em] text-snow/80 no-underline transition-colors hover:border-sodium/60 hover:text-snow aria-[current=page]:border-sodium/60 aria-[current=page]:text-sodium"
               >
-                {getResort(t.resort ?? "")?.name ?? t.title}
+                {t.place}
                 <span className="sr-only"> — {t.title}</span>
               </Link>
             </li>

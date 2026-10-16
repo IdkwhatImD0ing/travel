@@ -9,9 +9,8 @@
    there is no state class to keep in sync. Things we can't price carry
    data-off.
 
-   Selected chips get the lit top edge: the same sodium lamp the rest of
-   the page stands under. Amber stays scarce — the human voice, the $60
-   benchmark, and the one thing you picked. Glacier is reserved for
+   Selected chips get the lit top edge in sodium. Amber stays scarce —
+   the human voice and the one thing you picked. Glacier is reserved for
    numbers somebody actually measured.
    ------------------------------------------------------------------ */
 

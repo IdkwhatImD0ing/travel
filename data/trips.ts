@@ -1,25 +1,31 @@
-import { SCENARIO, type Plan } from "@/lib/types";
+import { SCENARIO, type Trip } from "@/lib/types";
 
 /**
- * The trips Bill is actually taking, one page each at /trips/<slug>. Each is a
- * decision the home page's open board led to: a mountain, a headcount, a
- * house. Add the next one here and it gets a page and a line on the home page.
+ * Every trip Bill is planning, one page each at /trips/<slug>. Ski trips are
+ * decisions the Tahoe board at /ski led to: a mountain, a headcount, a house.
+ * Anything else is priced from its own stays and costs. Add the next one here
+ * and it gets a page and a card on the home page.
  */
-export const TRIPS: Plan[] = [
+export const TRIPS: Trip[] = [
   {
     slug: "boreal-new-year",
     title: "Boreal over New Year",
+    kind: "ski",
+    place: "Boreal",
+    status: "upcoming",
     group: "boreal-new-year",
     variant: "5 people · 4 days",
     // Bill: "We are going to boreal", and the group for this one is four.
     people: 5,
-    skiDays: SCENARIO.skiDays,
     nights: 5,
-    age: SCENARIO.age,
     checkIn: "2026-12-29",
     checkOut: "2027-01-03",
-    skiDates: ["2026-12-30", "2026-12-31", "2027-01-01", "2027-01-02"],
-    resort: "boreal",
+    ski: {
+      skiDays: SCENARIO.ski.skiDays,
+      age: SCENARIO.ski.age,
+      skiDates: ["2026-12-30", "2026-12-31", "2027-01-01", "2027-01-02"],
+      resort: "boreal",
+    },
     blurb:
       "That is New Year week, when most passes in Tahoe are blacked out; Boreal’s 4-pack has no blackout dates at all.",
     // Five of us now, so only houses quoted at five: the hostel and the
@@ -37,16 +43,21 @@ export const TRIPS: Plan[] = [
     // The same trip a day shorter: check in Dec 30, ski Dec 31 – Jan 2.
     slug: "boreal-new-year-3-days",
     title: "Boreal over New Year, 3 days",
+    kind: "ski",
+    place: "Boreal",
+    status: "upcoming",
     group: "boreal-new-year",
     variant: "5 people · 3 days",
     people: 5,
-    skiDays: 3,
     nights: 4,
-    age: SCENARIO.age,
     checkIn: "2026-12-30",
     checkOut: "2027-01-03",
-    skiDates: ["2026-12-31", "2027-01-01", "2027-01-02"],
-    resort: "boreal",
+    ski: {
+      skiDays: 3,
+      age: SCENARIO.ski.age,
+      skiDates: ["2026-12-31", "2027-01-01", "2027-01-02"],
+      resort: "boreal",
+    },
     blurb:
       "One day shorter. Boreal’s 4-pack still covers it, with a visit left over: its day tickets are dynamically priced, holiday peak over New Year, and published for no date, so three of them are unlikely to come in under $239.",
     // The same hostel and hotel as the 4-day trip, re-quoted at five for the
@@ -65,16 +76,21 @@ export const TRIPS: Plan[] = [
     // 4-day trip.
     slug: "boreal-new-year-4-people",
     title: "Boreal over New Year, 4 people",
+    kind: "ski",
+    place: "Boreal",
+    status: "upcoming",
     group: "boreal-new-year",
     variant: "4 people · 4 days",
     people: 4,
-    skiDays: SCENARIO.skiDays,
     nights: 5,
-    age: SCENARIO.age,
     checkIn: "2026-12-29",
     checkOut: "2027-01-03",
-    skiDates: ["2026-12-30", "2026-12-31", "2027-01-01", "2027-01-02"],
-    resort: "boreal",
+    ski: {
+      skiDays: SCENARIO.ski.skiDays,
+      age: SCENARIO.ski.age,
+      skiDates: ["2026-12-30", "2026-12-31", "2027-01-01", "2027-01-02"],
+      resort: "boreal",
+    },
     blurb:
       "The same week for four of us. That is New Year week, when most passes in Tahoe are blacked out; Boreal’s 4-pack has no blackout dates at all.",
     // Castle Creek is the plan. The Donner Lake studio is the cheaper option
@@ -88,15 +104,42 @@ export const TRIPS: Plan[] = [
         "It is $239 until then and goes up after; Boreal’s own FAQ already quotes $259. It is not sold at the window, so everyone buys their own.",
     },
   },
+  {
+    // From the vacation-booker notes and research/channel-islands-*.json in
+    // the personal repo. The June target in those notes has passed, so no
+    // dates, and nothing is priced until it is read off a real page.
+    slug: "channel-islands",
+    title: "Channel Islands",
+    kind: "diving",
+    place: "Channel Islands",
+    status: "idea",
+    blurb:
+      "Ventura, then the Island Packers boat to Santa Cruz Island: sea-cave kayaking at Painted Cave or Scorpion, and a dive in the kelp forest. Flights on American points from SFO, and a Hyatt if there is one.",
+    stays: [],
+    costs: [],
+  },
+  {
+    // From research/hyatt-nm-*.json and the Hyatt extracts in the personal
+    // repo: Hyatts in Albuquerque, Santa Fe, Tamaya and Carlsbad.
+    slug: "new-mexico",
+    title: "New Mexico",
+    kind: "road-trip",
+    place: "New Mexico",
+    status: "idea",
+    blurb:
+      "Albuquerque and Santa Fe, then south to White Sands and Carlsbad Caverns, sleeping at Hyatts along the way.",
+    stays: [],
+    costs: [],
+  },
 ];
 
 export const getTrip = (slug: string) => TRIPS.find((t) => t.slug === slug);
 
 /** Every version of a trip, in the order they are listed above. */
-export const tripGroup = (plan: Plan) =>
-  plan.group ? TRIPS.filter((t) => t.group === plan.group) : [plan];
+export const tripGroup = (trip: Trip) =>
+  trip.group ? TRIPS.filter((t) => t.group === trip.group) : [trip];
 
-/** One plan per trip: the first version of each group, for the header and the home page. */
+/** One trip per group: the first version of each, for the header and the home page. */
 export const TRIP_HEADS = TRIPS.filter(
   (t, i) => !t.group || TRIPS.findIndex((u) => u.group === t.group) === i
 );

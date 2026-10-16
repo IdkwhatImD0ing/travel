@@ -71,7 +71,8 @@ export type Stay = Provenance & {
    */
   quotes: StayQuote[];
   url?: string;
-  toLift: string;
+  /** Ski trips only: how far the house is from the lifts. */
+  toLift?: string;
   perks: string[];
 };
 
@@ -170,20 +171,6 @@ export type SkiLocation = {
   rentals: Rental[];
 };
 
-export type Trip = {
-  slug: string;
-  title: string;
-  pitch: string;
-  locationSlug: string;
-  liftOptionId: string;
-  dates: { label: string; nights: number; skiDays: number };
-  /** Holiday weeks blow up lift pricing and void most multi-packs. */
-  holiday: boolean;
-  gasPerCarUsd: number;
-  seatsPerCar: number;
-  foodPerDayUsd: number;
-};
-
 /** The yardstick: $60/day on lift, from the Boreal 4-pack at ~$240. */
 export const BENCHMARK_PER_DAY = 60;
 
@@ -237,59 +224,120 @@ export type Resort = {
 };
 
 /**
- * One trip, held still. The home page prices an open one — pick any mountain —
- * and each page under /trips prices one Bill is actually taking, with the
- * mountain and the house already decided. Plain data, because the trip pages
- * are server components handing it to the client-side scenario.
+ * What kind of trip. Every kind gets its own colour on the page; "ski" also
+ * gets the ski calculator (passes, blackout dates, gear, cars).
  */
-export type Plan = {
-  /** Its page is /trips/<slug>. The home page's plan has none. */
+export type TripKind = "ski" | "beach" | "city" | "diving" | "road-trip";
+
+/**
+ * Upcoming trips have dates and a headcount and lead the home page. Ideas are
+ * places Bill has looked into, with nothing settled and nothing priced.
+ */
+export type TripStatus = "upcoming" | "idea";
+
+/** What every trip has, whatever kind it is. */
+type TripBase = {
+  /** Its page is /trips/<slug>. The Tahoe board's open plan has none. */
   slug?: string;
   /** What the trip is called, on its page and in the trip list. */
   title: string;
+  kind: TripKind;
+  /** Where, short enough for a header link: "Boreal", "New Mexico". */
+  place: string;
+  status: TripStatus;
+  /** A sentence for the top of the trip's page: why here, why these dates. */
+  blurb?: string;
+  /**
+   * Trips that are versions of one trip — the same place over the same week,
+   * at different lengths or headcounts — share a group. The header and the
+   * home page list each group once, and a trip page shows its siblings as a
+   * switch.
+   */
+  group?: string;
+  /** This version's name in that switch: "5 people · 4 days". */
+  variant?: string;
+  /** The one date this trip can lose money by missing, said in amber. */
+  deadline?: { lead: string; detail: string };
+  /** The house, once it is picked. */
+  stay?: string;
+};
+
+/**
+ * A ski trip, held still: headcount, dates and days on snow are settled,
+ * because the whole ski calculator prices against them. Its houses live with
+ * the ski area in data/locations.ts, since several trips share them, and the
+ * trip names which ones it wants. Plain data, because the trip pages are
+ * server components handing it to the client-side scenario.
+ */
+export type SkiTrip = TripBase & {
+  kind: "ski";
   people: number;
-  skiDays: number;
   nights: number;
-  /** Everybody is priced at this age, which decides the age-band fares. */
-  age: number;
   /** The nights we are actually pricing. ISO, because Airbnb wants ISO. */
   checkIn: string;
   checkOut: string;
   /**
-   * The days on snow. Lift coverage is counted against these, so a pass that
-   * is blacked out on one of them delivers one day fewer.
-   */
-  skiDates: readonly string[];
-  /**
-   * Plans that are versions of one trip — the same mountain over the same
-   * week, at different lengths — share a group. The header lists each group
-   * once, and a trip page shows its siblings as a switch.
-   */
-  group?: string;
-  /** This version's name in that switch: "4 days · Dec 29 – Jan 3". */
-  variant?: string;
-  /** The mountain, once it is decided. Omit to leave the board open. */
-  resort?: string;
-  /** The house, once it is picked. */
-  stay?: string;
-  /**
-   * This trip's own houses, by id. `Stay.tier` is the shortlist for the home
-   * page's headcount; a trip of a different size needs houses quoted at its
+   * This trip's own houses, by id. `Stay.tier` is the shortlist for the Tahoe
+   * board's headcount; a trip of a different size needs houses quoted at its
    * size, and says which here. Shown cheapest first, with the cheapest and
-   * the plan's own `stay` marked — a list rather than budget/pick/splurge
+   * the trip's own `stay` marked — a list rather than budget/pick/splurge
    * slots, because two houses $11 apart are not a budget and a pick.
    */
   shortlist?: readonly string[];
-  /** A sentence for the top of the trip's page: why this mountain, these dates. */
-  blurb?: string;
-  /** The one date this trip can lose money by missing, said in amber. */
-  deadline?: { lead: string; detail: string };
+  /** Everything only a ski trip has. */
+  ski: {
+    skiDays: number;
+    /** Everybody is priced at this age, which decides the age-band fares. */
+    age: number;
+    /**
+     * The days on snow. Lift coverage is counted against these, so a pass
+     * that is blacked out on one of them delivers one day fewer.
+     */
+    skiDates: readonly string[];
+    /** The mountain, once it is decided. Omit to leave the board open. */
+    resort?: string;
+  };
 };
 
 /**
- * The open trip the home page prices: eight of us, four full days, five
- * nights, everybody old enough to drink and young enough for the under-23
- * fares, and any mountain. The explorer at /explore is where these come loose.
+ * Anything a non-ski trip costs besides where we sleep: a flight, a ferry, a
+ * dive boat, a rental car, a hotel night on a road trip. It carries its
+ * provenance like every other price on this site.
+ */
+export type Cost = Provenance & {
+  id: string;
+  label: string;
+  /** A few words on what exactly: "Island Packers, Ventura to Scorpion". */
+  detail?: string;
+  /** "person": each of us pays this. "group": split across everyone. */
+  per: "person" | "group";
+  /** null while researching, and then the trip shows no total. */
+  usd: number | null;
+};
+
+/**
+ * Any other kind of trip. Everything past the name can be open: an idea has
+ * no dates, no headcount and no prices yet, and the page says so rather than
+ * guessing. Its houses and costs sit on the trip itself.
+ */
+export type OtherTrip = TripBase & {
+  kind: Exclude<TripKind, "ski">;
+  people?: number;
+  checkIn?: string;
+  checkOut?: string;
+  /** Places to sleep, as alternatives: the trip is priced on one of them. */
+  stays: Stay[];
+  /** Everything else, all paid: flights, boats, tours, a car. */
+  costs: Cost[];
+};
+
+export type Trip = SkiTrip | OtherTrip;
+
+/**
+ * The open ski trip the Tahoe board at /ski prices: eight of us, four full
+ * days, five nights, everybody old enough to drink and young enough for the
+ * under-23 fares, and any mountain. The explorer at /explore is where these
+ * come loose.
  *
  * The dates are Dec 29 – Jan 3, the dates every house is quoted for. Bill:
  * "my current plan is December 29th to Jan 3rd." That turns every blackout
@@ -297,27 +345,41 @@ export type Plan = {
  * coverage is counted against the four days we actually ski — drive up the
  * 29th, ski the 30th through the 2nd, drive home the 3rd.
  */
-export const SCENARIO: Plan = {
+export const SCENARIO: SkiTrip = {
   title: "Tahoe over New Year",
+  kind: "ski",
+  place: "Tahoe",
+  status: "upcoming",
   people: 8,
-  skiDays: SKI_DAYS,
   nights: 5,
-  age: 21,
   checkIn: "2026-12-29",
   checkOut: "2027-01-03",
-  /** Wed Dec 30, Thu Dec 31, Fri Jan 1, Sat Jan 2. */
-  skiDates: ["2026-12-30", "2026-12-31", "2027-01-01", "2027-01-02"],
+  ski: {
+    skiDays: SKI_DAYS,
+    age: 21,
+    /** Wed Dec 30, Thu Dec 31, Fri Jan 1, Sat Jan 2. */
+    skiDates: ["2026-12-30", "2026-12-31", "2027-01-01", "2027-01-02"],
+  },
 };
 
-/** "Dec 29 – Jan 3", for captions. Built from the plan so it can't drift. */
-export function tripDatesLabel(plan: Plan = SCENARIO): string {
+/** The dates a label or a listing link needs. Ideas have none yet. */
+type Dated = { checkIn?: string; checkOut?: string; people?: number };
+
+/**
+ * "Dec 29 – Jan 3", for captions. Built from the trip so it can't drift. null
+ * for a trip with no dates yet, so the caller has to say so in words.
+ */
+export function tripDatesLabel(trip?: { checkIn: string; checkOut: string }): string;
+export function tripDatesLabel(trip: Dated): string | null;
+export function tripDatesLabel(trip: Dated = SCENARIO): string | null {
+  if (!trip.checkIn || !trip.checkOut) return null;
   const fmt = (iso: string) =>
     new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       timeZone: "UTC",
     });
-  return `${fmt(plan.checkIn)} – ${fmt(plan.checkOut)}`;
+  return `${fmt(trip.checkIn)} – ${fmt(trip.checkOut)}`;
 }
 
 /**
@@ -327,15 +389,18 @@ export function tripDatesLabel(plan: Plan = SCENARIO): string {
  * a friend whatever the cheapest random midweek night happens to be — a
  * number that has nothing to do with what we would pay over New Year at our
  * headcount. Every stay link on this site carries the dates and the headcount so
- * the page you land on is the page the quote came from.
+ * the page you land on is the page the quote came from. A trip without dates
+ * yet gets the bare link.
  */
-export function listingUrl(url: string, plan: Plan = SCENARIO): string {
+export function listingUrl(url: string, trip: Dated = SCENARIO): string {
   if (!url.includes("airbnb.com")) return url;
   const u = new URL(url);
-  u.searchParams.set("check_in", plan.checkIn);
-  u.searchParams.set("check_out", plan.checkOut);
-  u.searchParams.set("adults", String(plan.people));
-  u.searchParams.set("guests", String(plan.people));
+  if (trip.checkIn) u.searchParams.set("check_in", trip.checkIn);
+  if (trip.checkOut) u.searchParams.set("check_out", trip.checkOut);
+  if (trip.people) {
+    u.searchParams.set("adults", String(trip.people));
+    u.searchParams.set("guests", String(trip.people));
+  }
   return u.toString();
 }
 

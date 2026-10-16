@@ -1,4 +1,4 @@
-import type { SkiLocation, Stay } from "@/lib/types";
+import type { OtherTrip, SkiLocation, Stay } from "@/lib/types";
 
 /**
  * What this stay actually costs for N guests.
@@ -51,6 +51,33 @@ export function stayTotalFor(
 
   // A single quote is only good for its own guest count.
   return null;
+}
+
+/**
+ * The cheapest of these houses that is quoted at our headcount. A trip that
+ * hasn't named its house is priced on this one, and says "from".
+ */
+export function cheapestStay(stays: Stay[], people: number | undefined) {
+  if (!people) return undefined;
+  return stays
+    .filter((s) => !!stayTotalFor(s, people))
+    .sort(
+      (a, b) => stayTotalFor(a, people)!.totalUsd - stayTotalFor(b, people)!.totalUsd
+    )[0];
+}
+
+/**
+ * The house any other trip opens on: the one it names, else the cheapest one
+ * quoted at its headcount, else the first. `named` is false when the page
+ * picked it, so the price can say "from".
+ */
+export function openingStay(trip: OtherTrip): { stay?: Stay; named: boolean } {
+  const named = trip.stays.find((s) => s.id === trip.stay);
+  if (named) return { stay: named, named: true };
+  return {
+    stay: cheapestStay(trip.stays, trip.people) ?? trip.stays[0],
+    named: false,
+  };
 }
 
 export type StayOption = {

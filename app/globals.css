@@ -1,13 +1,15 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------
-   Night skiing at Donner Summit. Boreal runs lights until 9pm and
-   this group drives up after work, so the palette is the drive in:
-   deep alpine dark, sodium floodlight amber, glacier cyan on the data.
+   Every trip Bill is planning, on one dark ground. The palette began
+   as night skiing at Donner Summit and kept what worked for any trip:
+   a deep night ground, sodium amber, glacier cyan on the data.
 
    Two accents, two jobs, no overlap:
-     sodium  = the human voice + the $60 benchmark. Nothing else.
+     sodium  = the human voice: Bill's notes, deadlines, what you picked.
      glacier = numbers we measured.
+   Each kind of trip adds one colour that only ever says which kind it
+   is (components/kind.tsx).
    --------------------------------------------------------------- */
 @theme {
   --color-night: #080c17;
@@ -24,9 +26,17 @@
   --color-pane: color-mix(in srgb, #131c33 70%, #080c17);
   --color-well: color-mix(in srgb, #080c17 78%, #000);
 
-  /* Trail markers, repurposed: difficulty = what it does to your wallet. */
+  /* Trail markers, repurposed: difficulty = what it does to your wallet.
+     Ski pages only. */
   --color-run-green: #45b056;
   --color-run-blue: #3b82e8;
+
+  /* One per kind of trip, lifted for the dark ground. */
+  --color-kind-ski: #a9c5ff;
+  --color-kind-beach: #f2cf86;
+  --color-kind-city: #ec8a72;
+  --color-kind-diving: #3fc6b4;
+  --color-kind-road: #c9a2f0;
 
   --font-display: var(--font-archivo), system-ui, sans-serif;
   --font-body: var(--font-public-sans), system-ui, sans-serif;
@@ -64,13 +74,6 @@ body {
   font-size: 16px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
-  /* Floodlight spill from the top of the page. */
-  background-image: radial-gradient(
-    120% 60% at 50% -10%,
-    rgba(255, 154, 60, 0.09) 0%,
-    rgba(255, 154, 60, 0) 60%
-  );
-  background-repeat: no-repeat;
   overflow-x: hidden;
 }
 
@@ -87,7 +90,7 @@ body {
 .display {
   font-family: var(--font-display);
   font-weight: 800;
-  font-stretch: 112%; /* Archivo's width axis — trail-sign voice. */
+  font-stretch: 112%; /* Archivo's width axis — the signage voice. */
   letter-spacing: -0.03em;
   line-height: 0.95;
   margin: 0;
@@ -321,42 +324,12 @@ body {
   text-transform: uppercase;
   color: var(--color-muted);
 }
-/* The yardstick, drawn as an actual bar. Amber rules mean $60 and
-   nothing else on this site. */
-.site-bar {
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
-  margin: 0;
-  padding-bottom: 5px;
-  border-bottom: 1px solid var(--color-sodium);
-}
-/* At phone width the wordmark, the trip links and the bar share one row, so
-   the wordmark drops its route line and the bar its label, and the bar keeps
-   its number and unit on one line. */
+/* At phone width the wordmark and the trip links share one row, so the
+   wordmark drops its second line. */
 @media (max-width: 480px) {
-  .site-mark-route,
-  .site-bar-label {
+  .site-mark-route {
     display: none;
   }
-  .site-bar {
-    white-space: nowrap;
-  }
-}
-.site-bar-label {
-  font-size: 9.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-}
-.site-bar-num {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--color-sodium);
-}
-.site-bar-unit {
-  font-size: 10.5px;
-  color: var(--color-muted);
 }
 
 /* --- Footer ------------------------------------------------------ */

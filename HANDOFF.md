@@ -1,7 +1,9 @@
 # Handoff
 
-A trip-pricing site Bill sends to friends. Pick a mountain, a house, gear and wheels;
-the bottom of the page says what each person pays.
+Bill's travel planning site, which he sends to friends. Every trip gets a page, and the
+page says what each person pays. It started as a Tahoe ski site; since 2026-10-16 ski
+is one kind of trip among others (beach, city, diving, road trip). Most of this file is
+about the ski calculator, because that is where the hard pricing rules live.
 
 **The one job:** a friend opens the link, sees what it costs *them*, and commits.
 
@@ -51,30 +53,55 @@ Three things worth knowing before you touch it:
 ## Map
 
 ```
-app/page.tsx           hero + trip list + <Scenario/> (the open board)
-app/trips/[slug]/      one page per Plan in data/trips.ts
+app/page.tsx           home: every trip as a card (upcoming, then ideas) + ski planner links
+app/trips/[slug]/      one page per trip in data/trips.ts; ski trips get <Scenario/>,
+                       the rest get <OtherTripBoard/>
+app/ski/               the open Tahoe board: 8 people, any mountain (was the home page)
+app/explore/           the ski explorer (<Configurator/>)
 app/layout.tsx         fonts, metadata, header/footer, HeadcountProvider
 app/globals.css        @theme tokens, page ground, ui.tsx primitives (see above)
 
 components/
-  configurator.tsx     the whole UI: 5 steps + the total. Client component.
+  scenario.tsx         the ski calculator: mountain, house, gear, car + the total
+  other-trip.tsx       any other trip: houses, other costs + the total
+  configurator.tsx     the ski explorer. Client component.
+  stay-chip.tsx        one house card, shared by both trip pages
+  receipt.tsx          the total: a shared shell, Receipt (ski), TripReceipt (other)
+  trip-card.tsx        one trip on the home page
+  kind.tsx             each trip kind's label and colour
   headcount.tsx        headcount context, persists to ?n= and localStorage
   ui.tsx               Marker, Num, Researching, Tag, Provenance
-  site-header.tsx      wordmark + the $60 benchmark
+  site-header.tsx      wordmark + one link per upcoming trip
   site-footer.tsx
 
 lib/
-  types.ts             Stay, LiftOption, Rental, SkiLocation, Provenance, PriceTier
-                       + SKI_DAYS (4) and BENCHMARK_PER_DAY (60) — the trip's shape
+  types.ts             Trip = SkiTrip | OtherTrip, TripKind, Cost, Stay, LiftOption,
+                       Rental, SkiLocation, Provenance, PriceTier
+                       + SKI_DAYS (4) and BENCHMARK_PER_DAY (60) for the ski board
   choices.ts           liftChoices() — every pass, one row per tier, priced and
                        ranked for SKI_DAYS. GEAR, CAR.
-  quote.ts             quote() — prices one selection. The money lives here.
-  cost.ts              stayTotalFor() per-guest lookup, stayOptions(), money()
+  quote.ts             quote() prices one ski selection; tripQuote() any other trip
+  cost.ts              stayTotalFor() per-guest lookup, cheapestStay(), money()
+  site.ts              SITE_NAME, planQuote() (ski), tripPrice() (any trip)
 
-data/trips.ts          the trips Bill is taking, one Plan each
-data/locations.ts      the main data file. 3 locations, each with stays/lift/rentals.
-research/*.json        raw research output, one file per dimension (see below)
+data/trips.ts          every trip Bill is planning
+data/locations.ts      the Tahoe ski data. 3 locations, each with stays/lift/rentals.
+research/*.json        raw ski research output, one file per dimension (see below)
 ```
+
+**Trip kinds.** `Trip` is `SkiTrip | OtherTrip`, told apart by `kind`. Both share `title`,
+`place` (the short name in the header), `status` (`"upcoming"` or `"idea"`), `blurb`,
+`group`/`variant`, `deadline` and `stay`. A `SkiTrip` has fixed dates and headcount plus a
+`ski` section: `skiDays`, `age`, `skiDates`, `resort`. Its houses come from
+`data/locations.ts` via `shortlist`. An `OtherTrip` carries its own `stays` (alternatives,
+pick one) and `costs` (all paid: flights, boats, tours), and its dates and headcount can be
+unset. `tripQuote()` follows the same rule as the ski quote: any `null` cost, a house not
+quoted at the headcount, or no headcount at all means no total, and the box says why. An
+idea with nothing priced shows one sentence instead of empty sections.
+
+The two ideas so far, Channel Islands (diving) and New Mexico (road trip), came from
+Bill's vacation-booker notes and research in the `personal` repo. They have no dates and
+no prices on purpose.
 
 Flow: pick a pass → the pass decides the location → that location's houses appear →
 gear and car are independent → `quote()` returns lines plus per-person, per-night,
@@ -109,14 +136,14 @@ Bill actually asked Airbnb about. That is correct behaviour, not a bug.
 Over `sleeps` sets `squeeze` — style it as a caption, not an alarm. Bill would take that
 trade.
 
-**Trips get their own pages.** Bill is going to more than one place, so the home page stays
-the open board, eight of us and any mountain, and each trip he actually takes is a `Plan` in
-`data/trips.ts`, rendered at `/trips/<slug>` by the same `<Scenario plan={…}/>`. A plan
-holds its own headcount, dates and `skiDates`. It can also fix the mountain (`resort`,
-which folds the rest of the board into a `<details>`), the house (`stay`), a `shortlist`
-of houses by tier, a hero `blurb` and an amber `deadline`. The home page lists every trip
-under "Trips we're taking", and the header carries one link per trip (`components/trip-nav.tsx`,
-marked with `aria-current` on its own page). Unknown slugs 404 (`dynamicParams = false`).
+**Trips get their own pages.** The open Tahoe board, eight of us and any mountain, lives at
+`/ski`. Each ski trip Bill actually takes is a `SkiTrip` in `data/trips.ts`, rendered at
+`/trips/<slug>` by the same `<Scenario plan={…}/>`. It holds its own headcount, dates and
+`ski.skiDates`. It can also fix the mountain (`ski.resort`, which folds the rest of the
+board into a `<details>`), the house (`stay`), a `shortlist` of houses by tier, a hero
+`blurb` and an amber `deadline`. The home page shows every trip as a card, and the header
+carries one link per upcoming trip (`components/trip-nav.tsx`, marked with `aria-current`
+on its own page). Unknown slugs 404 (`dynamicParams = false`).
 
 **The Boreal trip is five people now** (2026-09-29). Its houses are the two quoted at five:
 the hostel with a shared bathroom ($1,786) and the hotel with a sofa bed ($2,707). Names are
@@ -281,25 +308,33 @@ it** and is the highest-value number left to gather.
 
 ## Design direction
 
-Night skiing at Donner Summit — Boreal runs lights till 9 and this group drives up after
-work. Tokens are in `globals.css`:
+It began as night skiing at Donner Summit (Boreal runs lights till 9 and this group drives
+up after work). For the general site it kept the dark ground and dropped the ski-only
+touches: the floodlight glow behind the page and the $60 bar in the header. Tokens are in
+`globals.css`:
 
 ```
 night #080C17   dusk #131C33   ridge #24304F
 snow  #E8F0FA   muted #8FA0BD
 sodium #FF9A3C (accent)   glacier #74D8EC (data)
+kind-ski #A9C5FF  kind-beach #F2CF86  kind-city #EC8A72
+kind-diving #3FC6B4  kind-road #C9A2F0
 ```
 
-Type: **Archivo** display (width axis is load-bearing — resort signage is a wide
-grotesque), **Public Sans** body, **Chivo Mono** for every figure, tabular-nums.
+The kind colours only ever say which kind a trip is: its tag and the bar on top of its
+card (`components/kind.tsx`). Token names like `snow` and `sodium` stayed, because every
+class in the markup uses them.
 
-Trail-difficulty markers encode budget, not terrain: green circle under $60/day, blue
-square at it, black diamond over, dashed circle unpriced.
+Type: **Archivo** display (width axis is load-bearing — signage is a wide grotesque),
+**Public Sans** body, **Chivo Mono** for every figure, tabular-nums.
+
+Trail-difficulty markers (ski pages only) encode budget, not terrain: green circle under
+$80/day, blue square under $100, black diamond over, dashed circle unpriced.
 
 Inherited from the previous design pass, worth keeping:
 
-- **Two accents, non-overlapping jobs.** Sodium = the human voice and the $60 benchmark,
-  nothing else. Glacier = a number we measured. Keeping amber scarce is what stops this
+- **Two accents, non-overlapping jobs.** Sodium = the human voice, nothing else. Glacier =
+  a number we measured. Keeping amber scarce is what stops this
   reading as the default dark-page-with-one-accent look.
 - **A three-step confidence vocabulary:** dashed ring = missing, solid ring = estimated,
   filled disc = quoted. Cheap, and it makes "still checking" legible without words.

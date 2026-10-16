@@ -1,23 +1,17 @@
 import Link from "next/link";
-import { BENCHMARK_PER_DAY } from "@/lib/types";
 import { TripNav } from "@/components/trip-nav";
+import { SITE_NAME } from "@/lib/site";
 
 export function SiteHeader() {
   return (
     <header className="site-head">
       <div className="wrap site-head-inner">
         <Link href="/" className="site-mark">
-          <span className="site-mark-name">Night laps</span>
-          <span className="site-mark-route num">San Jose → Donner Summit</span>
+          <span className="site-mark-name">{SITE_NAME}</span>
+          <span className="site-mark-route num">Planned from San Jose</span>
         </Link>
 
         <TripNav />
-
-        <p className="site-bar num">
-          <span className="site-bar-label">the bar</span>
-          <span className="site-bar-num">${BENCHMARK_PER_DAY}</span>
-          <span className="site-bar-unit">/day on lift</span>
-        </p>
       </div>
     </header>
   );

@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 /**
  * Replaces create-next-app's default favicon: a sodium lamp on the night
- * ground — the one accent the site keeps for Bill's voice and the $60 bar.
+ * ground — the one accent the site keeps for Bill's voice.
  */
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
