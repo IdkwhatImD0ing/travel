@@ -146,8 +146,20 @@ export const TRIPS: Trip[] = [
           "https://www.google.com/travel/flights/booking?tfs=CBwQAhpLEgoyMDI2LTExLTI2Ih8KA1NGTxIKMjAyNi0xMS0yNhoDSE5MKgJBUzIDODExKABqDAgCEggvbS8wZDZscHIMCAMSCC9tLzBkZmNuGksSCjIwMjYtMTEtMzAiHwoDSE5MEgoyMDI2LTExLTMwGgNTRk8qAkFTMgM4NTUoAGoMCAMSCC9tLzBkZmNucgwIAhIIL20vMGQ2bHBAAUgBcAGCAQsI____________AZgBAQ&tfu=CmxDalJJVWpWc1kzcDFVMlp5VmpSQlJYUktaV2RDUnkwdExTMHRMUzB0TFMxd1ptNXlPVUZCUVVGQlIzSlRabk5aVFVsVldYbEJFZ1ZCVXpnMU5Sb0xDTERCQXhBQ0dnTlZVMFE0SEhDd3dRTT0SAggAIgA",
         asOf: "2026-10-16",
       },
+      {
+        // Bill: "price for car rental for those days 253$". One car for the
+        // four of us, so it is split.
+        id: "oahu-car",
+        label: "Car",
+        detail: "Rental car, Nov 26 – Nov 30, split across the 4 of us",
+        per: "group",
+        usd: 253,
+        status: "estimate",
+        source: "Bill’s read",
+        asOf: "2026-10-16",
+      },
     ],
-    totalNote: "Lodging and flights only.",
+    totalNote: "Lodging, flights and the car only.",
   },
   {
     // From the vacation-booker notes and research/channel-islands-*.json in
