@@ -107,17 +107,32 @@ export const TRIPS: Trip[] = [
   {
     // Bill, 2026-10-16: "Tentative trip to oahu thanksgiving break 5 days 4
     // nights". Thanksgiving is Thu Nov 26, so Wed Nov 25 – Sun Nov 29 is our
-    // reading of the dates, not his. No headcount and nothing priced yet.
+    // reading of the dates, not his. Then: "4 nights lets price it at 1000$
+    // for 4 nights for 4 people" — a lodging budget for the group, with no
+    // place picked, so it is a cost rather than a house.
     slug: "oahu-thanksgiving",
     title: "Oahu over Thanksgiving",
     kind: "beach",
     place: "Oahu",
     status: "upcoming",
+    people: 4,
     checkIn: "2026-11-25",
     checkOut: "2026-11-29",
     blurb: "Tentative. Thanksgiving break, 5 days and 4 nights, nothing booked yet.",
     stays: [],
-    costs: [],
+    costs: [
+      {
+        id: "oahu-lodging",
+        label: "Lodging",
+        detail: "4 nights for 4 of us, place not picked yet",
+        per: "group",
+        usd: 1000,
+        status: "estimate",
+        source: "Bill’s working number",
+        asOf: "2026-10-16",
+      },
+    ],
+    totalNote: "Flights aren’t included yet.",
   },
   {
     // From the vacation-booker notes and research/channel-islands-*.json in

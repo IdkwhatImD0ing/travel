@@ -329,6 +329,12 @@ export type OtherTrip = TripBase & {
   stays: Stay[];
   /** Everything else, all paid: flights, boats, tours, a car. */
   costs: Cost[];
+  /**
+   * What the total leaves out, said under it and beside it on the trip's
+   * card: "Flights aren't included yet." A share that silently skips a big
+   * cost reads as the price of the trip.
+   */
+  totalNote?: string;
 };
 
 export type Trip = SkiTrip | OtherTrip;

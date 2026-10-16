@@ -37,7 +37,8 @@ function describe(trip: Trip): string {
   return (
     `${KIND[trip.kind].trip}, ${trip.place}. ${when}. ` +
     (price
-      ? `${price.from ? "From " : ""}${money(price.perPerson)} each.`
+      ? `${price.from ? "From " : ""}${money(price.perPerson)} each.` +
+        (trip.totalNote ? ` ${trip.totalNote}` : "")
       : "No prices yet.") +
     (trip.blurb ? ` ${trip.blurb}` : "")
   );

@@ -124,14 +124,23 @@ export function Receipt({ q, headcount }: { q: Quote; headcount: number }) {
 }
 
 /** Any other trip's receipt: the shell, plus the nights and the squeeze. */
-export function TripReceipt({ q, headcount }: { q: TripQuote; headcount: number }) {
+export function TripReceipt({
+  q,
+  headcount,
+  note,
+}: {
+  q: TripQuote;
+  headcount: number;
+  /** The trip's own word on what the total leaves out. */
+  note?: string;
+}) {
   const facts = [
     q.nights && `${q.nights} nights`,
     q.squeeze && q.stay && `${headcount - q.stay.sleeps} on air mattresses`,
     q.estimated && "lodging interpolated, not quoted",
   ].filter(Boolean);
   return (
-    <ReceiptShell q={q} headcount={headcount}>
+    <ReceiptShell q={q} headcount={headcount} note={note}>
       {facts.length > 0 && (
         <p className="mt-5 font-data text-[11px] uppercase leading-relaxed tracking-[0.06em] text-muted">
           {facts.join(" · ")}

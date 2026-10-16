@@ -57,6 +57,11 @@ export function TripCard({ trip }: { trip: Trip }) {
           <span className="ml-1 text-[11.5px] font-normal tracking-normal text-muted">
             per person
           </span>
+          {trip.kind !== "ski" && trip.totalNote && (
+            <span className="block font-body text-[11.5px] font-normal tracking-normal text-muted">
+              {trip.totalNote}
+            </span>
+          )}
         </span>
       ) : (
         <span className={`${CHIP_RATE_OFF} mt-1`}>no price yet</span>

@@ -111,7 +111,8 @@ export function OtherTripBoard({ trip }: { trip: OtherTrip }) {
         {costs.length > 0 && (
           <section aria-labelledby="s-costs">
             <h2 className={STEP_H} id="s-costs">
-              <span className={STEP_N}>{costStep}</span> Everything else
+              <span className={STEP_N}>{costStep}</span>{" "}
+              {stays.length > 0 ? "Everything else" : "What it costs"}
               <span className={STEP_SUB}>all of it, not a choice</span>
             </h2>
             <ul className={`${CHIPS} m-0 list-none p-0`}>
@@ -142,13 +143,18 @@ export function OtherTripBoard({ trip }: { trip: OtherTrip }) {
 
       <aside className={RAIL}>
         {q && people ? (
-          <TripReceipt q={q} headcount={people} />
+          <TripReceipt q={q} headcount={people} note={trip.totalNote} />
         ) : (
           <NoReceipt>{why}</NoReceipt>
         )}
       </aside>
 
-      {q && <MobileTotal q={q} caption="per person" />}
+      {q && (
+        <MobileTotal
+          q={q}
+          caption={trip.totalNote ? `per person. ${trip.totalNote}` : "per person"}
+        />
+      )}
     </div>
   );
 }

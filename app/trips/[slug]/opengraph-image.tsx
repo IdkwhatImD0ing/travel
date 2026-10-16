@@ -44,7 +44,11 @@ function Card({ trip }: { trip: Trip }) {
     <OgCard
       eyebrow={`${KIND[trip.kind].trip} · ${tripDatesLabel(trip) ?? "no dates yet"}`}
       headline={`${trip.title}.`}
-      sub={trip.status === "idea" ? "An idea, nothing settled yet." : trip.place}
+      sub={
+        trip.status === "idea"
+          ? "An idea, nothing settled yet."
+          : (price && trip.totalNote) || trip.place
+      }
       figure={price ? money(price.perPerson) : undefined}
       figureLabel={
         price
