@@ -106,8 +106,8 @@ export const TRIPS: Trip[] = [
   },
   {
     // Bill, 2026-10-16: "Tentative trip to oahu thanksgiving break 5 days 4
-    // nights". Thanksgiving is Thu Nov 26, so Wed Nov 25 – Sun Nov 29 is our
-    // reading of the dates, not his. Then: "4 nights lets price it at 1000$
+    // nights", then "change dates, thursday to monday": Thu Nov 26 (the
+    // holiday) to Mon Nov 30. Then: "4 nights lets price it at 1000$
     // for 4 nights for 4 people" — a lodging budget for the group, with no
     // place picked, so it is a cost rather than a house.
     slug: "oahu-thanksgiving",
@@ -116,8 +116,8 @@ export const TRIPS: Trip[] = [
     place: "Oahu",
     status: "upcoming",
     people: 4,
-    checkIn: "2026-11-25",
-    checkOut: "2026-11-29",
+    checkIn: "2026-11-26",
+    checkOut: "2026-11-30",
     blurb: "Tentative. Thanksgiving break, 5 days and 4 nights, nothing booked yet.",
     stays: [],
     costs: [
