@@ -105,6 +105,21 @@ export const TRIPS: Trip[] = [
     },
   },
   {
+    // Bill, 2026-10-16: "Tentative trip to oahu thanksgiving break 5 days 4
+    // nights". Thanksgiving is Thu Nov 26, so Wed Nov 25 – Sun Nov 29 is our
+    // reading of the dates, not his. No headcount and nothing priced yet.
+    slug: "oahu-thanksgiving",
+    title: "Oahu over Thanksgiving",
+    kind: "beach",
+    place: "Oahu",
+    status: "upcoming",
+    checkIn: "2026-11-25",
+    checkOut: "2026-11-29",
+    blurb: "Tentative. Thanksgiving break, 5 days and 4 nights, nothing booked yet.",
+    stays: [],
+    costs: [],
+  },
+  {
     // From the vacation-booker notes and research/channel-islands-*.json in
     // the personal repo. The June target in those notes has passed, so no
     // dates, and nothing is priced until it is read off a real page.
