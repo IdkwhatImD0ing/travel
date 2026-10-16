@@ -131,8 +131,23 @@ export const TRIPS: Trip[] = [
         source: "Bill’s working number",
         asOf: "2026-10-16",
       },
+      {
+        // Bill: "Found trip is 576$", with this Google Flights link. Decoded,
+        // the link is 1 adult, so $576 is per person. Estimate, because the
+        // page wouldn't load in our browser to read it ourselves.
+        id: "oahu-flights",
+        label: "Flights",
+        detail: "Alaska, SFO to Honolulu round trip: AS 811 out Nov 26, AS 855 back Nov 30",
+        per: "person",
+        usd: 576,
+        status: "estimate",
+        source: "Google Flights — Bill’s read",
+        sourceUrl:
+          "https://www.google.com/travel/flights/booking?tfs=CBwQAhpLEgoyMDI2LTExLTI2Ih8KA1NGTxIKMjAyNi0xMS0yNhoDSE5MKgJBUzIDODExKABqDAgCEggvbS8wZDZscHIMCAMSCC9tLzBkZmNuGksSCjIwMjYtMTEtMzAiHwoDSE5MEgoyMDI2LTExLTMwGgNTRk8qAkFTMgM4NTUoAGoMCAMSCC9tLzBkZmNucgwIAhIIL20vMGQ2bHBAAUgBcAGCAQsI____________AZgBAQ&tfu=CmxDalJJVWpWc1kzcDFVMlp5VmpSQlJYUktaV2RDUnkwdExTMHRMUzB0TFMxd1ptNXlPVUZCUVVGQlIzSlRabk5aVFVsVldYbEJFZ1ZCVXpnMU5Sb0xDTERCQXhBQ0dnTlZVMFE0SEhDd3dRTT0SAggAIgA",
+        asOf: "2026-10-16",
+      },
     ],
-    totalNote: "Flights aren’t included yet.",
+    totalNote: "Lodging and flights only.",
   },
   {
     // From the vacation-booker notes and research/channel-islands-*.json in
