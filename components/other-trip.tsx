@@ -96,7 +96,9 @@ export function OtherTripBoard({ trip }: { trip: OtherTrip }) {
                   onPick={() => setStayId(s.id)}
                   mark={
                     s.id === trip.stay
-                      ? "the plan"
+                      ? trip.booked
+                        ? "booked"
+                        : "the plan"
                       : s.id === cheapest
                         ? "cheapest"
                         : undefined

@@ -245,7 +245,7 @@ export const GEAR = {
       const billed = Math.max(1, n - 2);
       return n <= 0 ? 0 : billed === 1 ? 50 : billed <= 4 ? 85 : billed <= 9 ? 145 : 290;
     },
-    note: "Sports Basement: pickup and return days are free, so six days bills as the 2–4 day “weekend” rate. Fills the trunk, and you're stuck with whatever you picked.",
+    note: "Sports Basement: pickup and return days are free, so the days on the road cost nothing and up to four in between bill as the 2–4 day “weekend” rate. Fills the trunk, and you're stuck with whatever you picked.",
     // Bill's call: this is the default, over renting at the resort.
     recommended: true,
     why: "Pick it up before we leave and it rides up with us.",

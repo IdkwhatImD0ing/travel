@@ -1,5 +1,10 @@
 # Data handoff: numbers to fetch for the Boreal trip
 
+> **Done, then superseded (2026-10-21).** A local agent did tasks 1–4 on 2026-09-28. The Boreal
+> trip has since been booked (a Donner Lake Village studio for four, Dec 29 – Jan 2), and the
+> 5-person houses and versions below are gone from the site. Kept as a record. See
+> `HANDOFF.md` for the current state.
+
 For a Claude agent running **locally on Bill's machine**, with a real browser. The cloud
 agent that built this site can't reach airbnb.com (its egress proxy blocks it), and a plain
 fetch can't read several resort pages because they render with JavaScript. So these numbers

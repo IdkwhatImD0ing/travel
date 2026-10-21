@@ -260,6 +260,8 @@ type TripBase = {
   deadline?: { lead: string; detail: string };
   /** The house, once it is picked. */
   stay?: string;
+  /** True once `stay` is paid for: its card says "booked" instead of "the plan". */
+  booked?: boolean;
 };
 
 /**

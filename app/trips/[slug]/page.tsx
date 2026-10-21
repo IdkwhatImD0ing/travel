@@ -104,10 +104,18 @@ function SkiTripPage({ trip }: { trip: SkiTrip }) {
           </h1>
           <p className="hero-sub">
             {tripDatesLabel(trip)} — drive up the first day, ski{" "}
-            {trip.ski.skiDays} days, drive home the last. {trip.blurb}
+            {trip.ski.skiDays} days,{" "}
+            {/* Skiing the checkout day is a different trip shape from driving
+                home on it, so the sentence follows the dates. */}
+            {trip.ski.skiDates.includes(trip.checkOut)
+              ? "the last one before the drive home."
+              : "drive home the last."}{" "}
+            {trip.blurb}
           </p>
           <p className="hero-sub">
-            {resort
+            {resort && trip.booked
+              ? `The mountain and the house are booked. Pick the gear and the car, and the number on the right is what you pay.`
+              : resort
               ? `The mountain is settled. Pick the house, the gear and the car, and the number on the right is what you pay.`
               : `Pick the mountain, the house, the gear and the car, and the number on the right is what you pay.`}
           </p>

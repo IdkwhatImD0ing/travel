@@ -145,31 +145,23 @@ board into a `<details>`), the house (`stay`), a `shortlist` of houses by tier, 
 carries one link per upcoming trip (`components/trip-nav.tsx`, marked with `aria-current`
 on its own page). Unknown slugs 404 (`dynamicParams = false`).
 
-**The Boreal trip is five people now** (2026-09-29). Its houses are the two quoted at five:
-the hostel with a shared bathroom ($1,786) and the hotel with a sofa bed ($2,707). Names are
-Bill's descriptions, because Airbnb is blocked from the build environment, so read the real
-titles off the links when you can. Neither is marked as the plan, so the page opens on the
-cheapest, and `planQuote()` falls back to the cheapest shortlisted house and says "from".
-The four-person houses (Castle Creek, the Donner Lake studio, the Soda Springs place) sleep
-four at most and are off the trip. **The 3-day version has no total at five:** its only
-house is Castle Creek at four, and nothing is quoted for five from Dec 30.
+**The Boreal trip is booked** (2026-10-21). It's four of us in **Comfortable Studio w/Kitchen
+2nd Floor #213 at Donner Lake Village** (`donner-lake-village-213`), Dec 29 – Jan 2, 4 nights,
+$1,325.10 with taxes and fees: $718.05 paid Oct 21, $607.05 still to pay (date not on the
+confirmation). We ski Dec 30 – Jan 2, the last day after the 11am checkout, and everyone
+bought the iRide 4-Pack at $239 before Oct 1. That's **$655 per person** with gear from San
+Jose. `booked: true` on the trip makes the house's card say "booked" and the hero say the
+house is booked. The booking has no listing link (it's not an Airbnb confirmation), so the
+card shows "no link".
 
-**There's a 4-person version too**, `/trips/boreal-new-year-4-people` (2026-09-30): the same
-Dec 29 – Jan 3 dates for four, in **Castle Creek Chalet**, repriced to **$1,893** for 4 adults
-(5 × $378.60, discounted from a struck-through $2,765.27). Its other option is the Donner Lake
-studio. The Alta House ($1,150, `soda-springs-4p`) is cheaper but sits in the foothills, not
-near Boreal, so it's left off. The switch labels are now "5 people · 4 days", "5 people · 3
-days", "4 people · 4 days".
-
-**The Boreal trip has a 3-day version**, `/trips/boreal-new-year-3-days`: check in Dec 30,
-ski Dec 31 – Jan 2, home Jan 3. Plans that share a `group` are versions of one trip. The header
-and the home list show the group once (`TRIP_HEADS`), and the trip page shows a length switch
-(`tripGroup`, labelled by each plan's `variant`). Ski days are the plan's own: `liftChoices`
-covers `skiDates.length`, and `quote()` takes `skiDays`. The 4-pack still covers three days
-(one visit spare). Its only house so far is Castle Creek at 4 nights, a separate record
-(`truckee-castle-creek-4n`, $2,184) because a quote belongs to its dates. Boreal's own day
-tickets stay unpriced: Go-Time is dynamic and publishes no rate for any date (see
-`boreal-window-holiday`'s note).
+The trip went through three versions before this (5 people for 4 and 3 days, 4 people for
+4 days). They're gone, along with the houses only they used (the hostel and hotel for five,
+Castle Creek, the other Donner Lake studio, #134). Their old links redirect to the booked
+trip (`next.config.ts`); the houses are in git history and `research/boreal-5p-2026-09.json`.
+The version mechanics stay in the code for the next trip that needs them: trips sharing a
+`group` show once in the header and home list (`TRIP_HEADS`), and the trip page shows a switch
+(`tripGroup`, labelled by `variant`). Ski days are the trip's own: `liftChoices` covers
+`skiDates.length`, and `quote()` takes `skiDays`.
 
 **Gear is priced for the days you hold it.** Bill: *"we have 6 days so we need to rent for
 6 days, 4 ski days + 2 travel days."* Each `GEAR` option has `days: "trip" | "ski"` and a
@@ -191,16 +183,9 @@ explicit one overrides Vercel's, so every share image pointed nowhere), plus `OG
 pages and /explore open on `sj` and `own`, and "pick this" sits on San Jose. Renting up there
 and renting a car are still one tap away.
 
-The first is **`boreal-new-year`**: Bill, *"We are going to boreal"*, four of us. It opens on
-**Castle Creek Chalet**, a Truckee condo at $2,671 for 4 adults, Dec 29 – Jan 3. The
-cheaper options are the **Donner Lake Village studio** at $1,669 (a studio where one of the
-two beds is a sofa bed, in its `sleepNote`) and the $1,680 four-person place (link sent
-2026-09-28; the total is still Bill's earlier number). A plan's `shortlist` is a list of
-stay ids, shown cheapest first with "cheapest" and "the plan" marked. It isn't tier slots,
-because two houses $11 apart are not a budget and a pick. The Modern A-Frame ($3,187.80) was
-on this trip and has been removed. `Stay.tier`
-is still the home page's eight-person shortlist. After Oct 1 the trip's deadline and the
-$239 are both wrong, so re-price the pack then.
+A trip's `shortlist` is a list of stay ids, shown cheapest first with "cheapest" and "the
+plan" (or "booked") marked. It isn't tier slots, because two houses $11 apart are not a budget
+and a pick. `Stay.tier` is still the Tahoe board's eight-person shortlist.
 
 **Dates are now fixed: Dec 29 – Jan 3.** Bill: *"my current plan is December 29th to
 Jan 3rd."* This replaces the earlier *"each proposal is time shiftable"*. The four ski days
@@ -393,8 +378,9 @@ research — where they disagree, ask him rather than overwriting.
 
 ## Open
 
-1. **The four-person place's $1,680 hasn't been re-read off a checkout.** Its link came in
-   2026-09-28. Castle Creek's $2,671 is Bill's checkout read; its tax line wasn't captured.
+1. **The Boreal trip's second payment, $607.05**, has no due date on the confirmation. Add
+   it to the trip blurb if Bill sends it. The iRide 4-Pack's post-Oct 1 price hasn't been
+   read either; the Tahoe board still prices it at the $239 the group paid.
 2. **A second quote on any one house** — see the retraction above. Still the
    highest-value number left to gather.
 

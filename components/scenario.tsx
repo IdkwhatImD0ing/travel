@@ -341,7 +341,9 @@ export function Scenario({ plan = SCENARIO }: { plan?: SkiTrip }) {
                 // priced in the middle.
                 mark={
                   s.id === plan.stay
-                    ? "the plan"
+                    ? plan.booked
+                      ? "booked"
+                      : "the plan"
                     : tier && (tier === "cheapest" ? "cheapest" : TIER_LABEL[tier])
                 }
                 trip={plan}
